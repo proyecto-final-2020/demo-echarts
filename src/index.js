@@ -1,4 +1,4 @@
-import { times, map } from 'lodash';
+import times from 'lodash/times';
 import echarts from 'echarts/lib/echarts';
 import 'echarts/lib/chart/line';
 import 'echarts/lib/component/tooltip';
@@ -6,37 +6,41 @@ import 'echarts/lib/component/title';
 import 'echarts/lib/component/dataZoom';
 import 'echarts/lib/component/legend';
 
-import { getNextDates, generateRandomData } from './random_data';
+import { getNextSeconds, generateRandomData } from './random_data';
 
 var myChart = echarts.init(document.getElementById('root'));
 
-const xData = getNextDates(4000);
-const y1 = generateRandomData(xData);
-const y2 = generateRandomData(xData);
+const xData = getNextSeconds(4000);
 const MEASUREMENTS_COUNT = 4;
 const datas = times(MEASUREMENTS_COUNT, i => ({ name: `Medicion ${i + 1}`, data: generateRandomData(xData) }));
+const dataset = datas.reduce((acc, { name, data }) => ({ ...acc, [name]: data }), { timestamp: xData });
+const legendNames = datas.map(({ name }) => name);
 
-const legendNames = map(datas, 'name');
-
-const getSerieFromData = ({ name, data }) => ({
+const getSerieFromData = ({ name }) => ({
   name,
-  data,
   type: 'line',
   smooth: true,
   symbol: 'none',
   sampling: 'average',
   itemStyle: {
-    color: '#'+Math.random().toString(16).substr(-6)
+    color: '#' + Math.random().toString(16).substr(-6)
+  },
+  encode: {
+    x: 'timestamp',
+    y: name
   }
 });
 
-const series = map(datas, getSerieFromData);
+const series = datas.map(getSerieFromData);
 
 const option = {
   tooltip: {
     trigger: 'axis',
     position: function (pt) {
       return [pt[0], '10%'];
+    },
+    axisPointer: {
+      type: 'cross'
     }
   },
   legend: {
@@ -54,11 +58,16 @@ const option = {
       saveAsImage: {}
     }
   },
+  dataset: {
+    source: dataset,
+    dimensions: ['timestamp', ...legendNames]
+  },
   xAxis:
   {
-    type: 'category',
+    type: 'time',
     boundaryGap: false,
-    data: xData
+    min: 'dataMin',
+    max: 'dataMax'
   },
   yAxis: {
     type: 'value',

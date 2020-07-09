@@ -1,12 +1,12 @@
 const last = arr => arr[arr.length - 1];
 
-export const getNextDates = size => {
+export const getNextSeconds = size => {
   const dates = [];
-  const oneDay = 24 * 3600 * 1000;
-  const baseDate = new Date();
+  const oneSecond = 1000;
+  const baseDate = new Date(Math.ceil(Date.now() / oneSecond) * oneSecond);
   for (let i = 0; i < size; i++) {
-    const now = new Date(baseDate.getTime() + oneDay * i);
-    dates.push([now.getFullYear(), now.getMonth() + 1, now.getDate()].reverse().join('/'));
+    const now = new Date(baseDate.getTime() + oneSecond * i);
+    dates.push(now.toISOString());
   }
   return dates;
 }
