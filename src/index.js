@@ -1,14 +1,9 @@
 import times from 'lodash/times';
-import echarts from 'echarts/lib/echarts';
-import 'echarts/lib/chart/line';
-import 'echarts/lib/component/tooltip';
-import 'echarts/lib/component/title';
-import 'echarts/lib/component/dataZoom';
-import 'echarts/lib/component/legend';
-
+import echarts from 'echarts';
 import { getNextSeconds, generateRandomData } from './random_data';
 
-var myChart = echarts.init(document.getElementById('root'));
+const container = document.getElementById('root');
+const myChart = echarts.init(container);
 
 const xData = getNextSeconds(4000);
 const MEASUREMENTS_COUNT = 4;
@@ -95,3 +90,5 @@ const option = {
 
 // use configuration item and data specified to show chart
 myChart.setOption(option);
+
+window.onresize = () => myChart.resize();
